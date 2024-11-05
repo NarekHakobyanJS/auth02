@@ -1,10 +1,11 @@
-const express = require('express')
+const express = require('express');
 const mongoose = require('mongoose');
 const bcryptjs = require('bcryptjs');
-const UserModel = require('./models/Users')
-const jwt = require('jsonwebtoken')
-const {checkAuth} = require('./middleware/checkAuth')
-const { registerValidation } = require('./validation/registerValidation')
+const UserModel = require('./models/Users');
+const PostModel = require('./models/Posts');
+const jwt = require('jsonwebtoken');
+const { checkAuth } = require('./middleware/checkAuth');
+const { registerValidation } = require('./validation/registerValidation');
 const app = express()
 const port = 3030
 
@@ -53,16 +54,16 @@ app.post('/auth/register', async (req, res) => {
 app.post('/auth/login', async (req, res) => {
 
     try {
-        const user = await UserModel.findOne({email : req.body.email});
+        const user = await UserModel.findOne({ email: req.body.email });
 
-        if(!user) {
-            return res.json({'msg' : 'Email no'})
+        if (!user) {
+            return res.json({ 'msg': 'Email no' })
         }
 
         const validPass = await bcryptjs.compare(req.body.password, user._doc.passwordHash)
 
-        if(!validPass) {
-            return res.json({'msg' : 'Password no'})
+        if (!validPass) {
+            return res.json({ 'msg': 'Password no' })
         }
 
 
@@ -85,10 +86,27 @@ app.get('/auth/me', checkAuth, async (req, res) => {
         const user = await UserModel.findById(req.userId)
         res.json(user)
     } catch (error) {
-        res.json({'msg' : error.message})
+        res.json({ 'msg': error.message })
     }
 })
 
+/// Post 
+app.post('/posts', checkAuth, async (req, res) => {
+    try {
+        const doc = new PostModel({
+            title: req.body.title,
+            text: req.body.text,
+            tags: req.body.tags,
+            user: req.userId
+        })
+
+        const post = await doc.save()
+
+        res.json(post)
+    } catch (error) {
+        res.json(error.message)
+    }
+})
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
