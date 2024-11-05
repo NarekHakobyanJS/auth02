@@ -1,6 +1,12 @@
 
 const mongoose = require('mongoose');
+// Modele Ushadir nayeq
 
+// Huj Karevor
+// user : {
+//     type : mongoose.Schema.Types.ObjectId,
+//     ref : 'users'
+// },
 const PostModel = new mongoose.Schema({
     title : {
         type : String,
@@ -20,7 +26,8 @@ const PostModel = new mongoose.Schema({
     },
     user : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'users'
+        ref : 'users',
+        required : true
     },
     imageUrl : String
 })

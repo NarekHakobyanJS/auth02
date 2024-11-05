@@ -50,6 +50,7 @@ app.post('/auth/register', async (req, res) => {
         res.json(error.message)
     }
 })
+
 // login
 app.post('/auth/login', async (req, res) => {
 
@@ -90,9 +91,13 @@ app.get('/auth/me', checkAuth, async (req, res) => {
     }
 })
 
-/// Post 
+/// Post Route
+//
+//
+//Created Post
 app.post('/posts', checkAuth, async (req, res) => {
     try {
+        // Stexcument Documnete
         const doc = new PostModel({
             title: req.body.title,
             text: req.body.text,
@@ -100,11 +105,42 @@ app.post('/posts', checkAuth, async (req, res) => {
             user: req.userId
         })
 
+        // Save enq anum Doce
         const post = await doc.save()
 
         res.json(post)
     } catch (error) {
         res.json(error.message)
+    }
+})
+
+// Read Posts ALL
+app.get('/posts', async (req, res) => {
+    try {
+        //  MongoDB-ն ունի join նման $lookup ագրեգացման օպերատոր >= 3.2 
+        //  տարբերակներում: Mongoose-ն ունի ավելի հզոր այլընտրանք, որը կոչվում է populate(),
+        //  որը թույլ է տալիս հղում կատարել այլ հավաքածուների փաստաթղթերին:
+
+        const posts = await PostModel.find().populate('user').exec()
+
+        res.json(posts)
+    } catch (error) {
+        res.json(error)
+    }
+})
+
+app.get('/posts/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+
+        const post = await PostModel.findOneAndUpdate(
+            {_id : id},
+            {$inc : {viewsCount : 1}}
+        ).populate('user').exec()
+
+        res.json(post)
+    } catch (error) {
+        res.json(error)
     }
 })
 app.listen(port, () => {
