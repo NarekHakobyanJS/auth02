@@ -128,7 +128,7 @@ app.get('/posts', async (req, res) => {
         res.json(error)
     }
 })
-
+// Read Post One
 app.get('/posts/:id', async (req, res) => {
     try {
         const id = req.params.id
@@ -139,6 +139,41 @@ app.get('/posts/:id', async (req, res) => {
         ).populate('user').exec()
 
         res.json(post)
+    } catch (error) {
+        res.json(error)
+    }
+})
+
+// Delete Post
+app.delete('/posts/:id', checkAuth, async(req, res) => {
+    try {
+        const id = req.params.id
+
+        const removePost = await PostModel.findByIdAndDelete(id)
+
+        res.json(removePost)
+    } catch (error) {
+        res.json(error)
+    }
+})
+
+// Update Post
+app.patch('/posts/:id', checkAuth, async (req, res) => {
+    try {
+        const id = req.params.id 
+        
+        const updatePost = await PostModel.updateOne(
+            {_id : id},
+            {
+                title : req.body.title,
+                text : req.body.text,
+                user : req.userId,
+                tags : req.body.tags
+            }
+        )
+
+        res.json(updatePost)
+
     } catch (error) {
         res.json(error)
     }
